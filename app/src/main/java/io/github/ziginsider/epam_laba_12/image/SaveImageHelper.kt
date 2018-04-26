@@ -13,17 +13,17 @@ import com.squareup.picasso.Target
 import java.lang.ref.WeakReference
 
 class SaveImageHelper(): Target {
-    private lateinit var context: Context
+    private var context: Context? = null
     private lateinit var contentResolverWeakReference: WeakReference<ContentResolver>
     private lateinit var name: String
     private lateinit var description: String
 
-    constructor(context: Context,
+    constructor(context: Context?,
                 contentResolver: ContentResolver,
                 name: String,
                 description: String) : this() {
         this.context = context
-        contentResolverWeakReference = WeakReference<ContentResolver>(contentResolver)
+        contentResolverWeakReference = WeakReference(contentResolver)
         this.name = name
         this.description = description
     }
@@ -49,12 +49,13 @@ class SaveImageHelper(): Target {
 
     override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
         val resolver = contentResolverWeakReference.get()
-        var url: String? = null
+        val url: String?
         if (resolver != null) {
             url = MediaStore.Images.Media.insertImage(resolver, bitmap, name, description)
-            Log.d("TAG", "internal url = $url")
+            //Log.d("TAG", "internal url = $url")
             imageLoadingListener?.imageLoaded(url)
         }
+        context = null
     }
 
 
