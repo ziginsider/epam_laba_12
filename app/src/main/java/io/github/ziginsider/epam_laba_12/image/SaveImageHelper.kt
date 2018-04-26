@@ -1,30 +1,30 @@
 package io.github.ziginsider.epam_laba_12.image
 
+import android.app.ProgressDialog
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.provider.MediaStore
-import android.support.v7.app.AlertDialog
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
 import java.lang.ref.WeakReference
 
 class SaveImageHelper(): Target {
     private lateinit var context: Context
-    private lateinit var alertDialogWeakReference: WeakReference<AlertDialog>
+    private lateinit var progressDialogWeakReference: WeakReference<ProgressDialog>
     private lateinit var contentResolverWeakReference: WeakReference<ContentResolver>
     private lateinit var name: String
     private lateinit var description: String
 
     constructor(context: Context,
-                alertDialog: AlertDialog,
+                progressDialog: ProgressDialog,
                 contentResolver: ContentResolver,
                 name: String,
                 description: String) : this() {
         this.context = context
-        alertDialogWeakReference = WeakReference<AlertDialog>(alertDialog)
+        progressDialogWeakReference = WeakReference<ProgressDialog>(progressDialog)
         contentResolverWeakReference = WeakReference<ContentResolver>(contentResolver)
         this.name = name
         this.description = description
@@ -39,7 +39,7 @@ class SaveImageHelper(): Target {
 
     override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
         val resolver = contentResolverWeakReference.get()
-        val dialog =  alertDialogWeakReference.get()
+        val dialog =  progressDialogWeakReference.get()
 
         if (resolver != null) {
             MediaStore.Images.Media.insertImage(resolver, bitmap, name, description)
@@ -47,7 +47,7 @@ class SaveImageHelper(): Target {
         dialog?.dismiss()
 
         val intent = Intent()
-        with(intent) {
+        with(intent) {//TODO
             setType("image/*")
             setAction(Intent.ACTION_GET_CONTENT)
         }
