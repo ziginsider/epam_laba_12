@@ -7,51 +7,55 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.provider.MediaStore
+import android.util.Log
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
 import java.lang.ref.WeakReference
 
 class SaveImageHelper(): Target {
     private lateinit var context: Context
-    private lateinit var progressDialogWeakReference: WeakReference<ProgressDialog>
     private lateinit var contentResolverWeakReference: WeakReference<ContentResolver>
     private lateinit var name: String
     private lateinit var description: String
 
     constructor(context: Context,
-                progressDialog: ProgressDialog,
                 contentResolver: ContentResolver,
                 name: String,
                 description: String) : this() {
         this.context = context
-        progressDialogWeakReference = WeakReference<ProgressDialog>(progressDialog)
         contentResolverWeakReference = WeakReference<ContentResolver>(contentResolver)
         this.name = name
         this.description = description
     }
 
-    override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
+    interface TargetCallback {
+        fun imageLoaded(url: String?)
+    }
 
+    private var imageLoadingListener: TargetCallback? = null
+
+    override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
+        if (context is TargetCallback) {
+            imageLoadingListener = context as TargetCallback
+        } else {
+            throw RuntimeException(context.toString()
+                    + " must implement interface TargetCallback")
+        }
     }
 
     override fun onBitmapFailed(errorDrawable: Drawable?) {
+        Log.d("TAG", errorDrawable?.toString())
     }
 
     override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
         val resolver = contentResolverWeakReference.get()
-        val dialog =  progressDialogWeakReference.get()
-
+        var url: String? = null
         if (resolver != null) {
-            MediaStore.Images.Media.insertImage(resolver, bitmap, name, description)
+            url = MediaStore.Images.Media.insertImage(resolver, bitmap, name, description)
+            Log.d("TAG", "internal url = $url")
+            imageLoadingListener?.imageLoaded(url)
         }
-        dialog?.dismiss()
-
-        val intent = Intent()
-        with(intent) {//TODO
-            setType("image/*")
-            setAction(Intent.ACTION_GET_CONTENT)
-        }
-        context.startActivity(Intent.createChooser(intent, "View image"))
     }
+
 
 }
