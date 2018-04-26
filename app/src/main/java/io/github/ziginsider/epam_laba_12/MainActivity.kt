@@ -15,7 +15,7 @@ import org.jetbrains.anko.indeterminateProgressDialog
 import org.jetbrains.anko.toast
 import java.util.*
 
-class MainActivity : AppCompatActivity(), SaveImageHelper.TargetCallback {
+class MainActivity : AppCompatActivity(), SaveImageHelper.ImageLoadingListener {
     private val REQUEST_PERMISSION_CODE = 1
     private lateinit var progressDialog: ProgressDialog
 

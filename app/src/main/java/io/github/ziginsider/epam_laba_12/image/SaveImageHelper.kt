@@ -11,7 +11,7 @@ import com.squareup.picasso.Target
 import java.lang.ref.WeakReference
 
 class SaveImageHelper(): Target {
-    interface TargetCallback {
+    interface ImageLoadingListener {
         fun imageLoaded(url: String?)
     }
 
@@ -19,7 +19,7 @@ class SaveImageHelper(): Target {
     private lateinit var contentResolverWeakReference: WeakReference<ContentResolver>
     private lateinit var name: String
     private lateinit var description: String
-    private var imageLoadingListener: TargetCallback? = null
+    private var imageLoadingListener: ImageLoadingListener? = null
 
     constructor(context: Context?,
                 contentResolver: ContentResolver,
@@ -29,11 +29,11 @@ class SaveImageHelper(): Target {
         contentResolverWeakReference = WeakReference(contentResolver)
         this.name = name
         this.description = description
-        if (context is TargetCallback) {
+        if (context is ImageLoadingListener) {
             imageLoadingListener = context
         } else {
             throw RuntimeException(context.toString()
-                    + " must implement interface TargetCallback")
+                    + " must implement interface ImageLoadingListener")
         }
     }
 
@@ -54,6 +54,4 @@ class SaveImageHelper(): Target {
         imageLoadingListener = null
         context = null
     }
-
-
 }
