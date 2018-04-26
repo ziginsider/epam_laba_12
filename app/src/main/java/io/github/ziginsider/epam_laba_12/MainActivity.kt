@@ -35,11 +35,11 @@ class MainActivity : AppCompatActivity(), SaveImageHelper.TargetCallback {
                 progressDialog.show()
 
                 val fileName = UUID.randomUUID().toString() + ".jpg"
-                Picasso.with(it.context)
+                Picasso.with(this)
                         .load("https://us.123rf.com/450wm/mondaian/mondaian1701/mondaian170100117/71437596-roman-coliseum.jpg")
                         //.resize(2000, 1000)
                         .into(SaveImageHelper(
-                                it.context,
+                                this,
                                 applicationContext.contentResolver,
                                 fileName,
                                 "image description"))

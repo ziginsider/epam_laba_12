@@ -13,10 +13,15 @@ import com.squareup.picasso.Target
 import java.lang.ref.WeakReference
 
 class SaveImageHelper(): Target {
+    interface TargetCallback {
+        fun imageLoaded(url: String?)
+    }
+
     private var context: Context? = null
     private lateinit var contentResolverWeakReference: WeakReference<ContentResolver>
     private lateinit var name: String
     private lateinit var description: String
+    private var imageLoadingListener: TargetCallback? = null
 
     constructor(context: Context?,
                 contentResolver: ContentResolver,
@@ -26,21 +31,16 @@ class SaveImageHelper(): Target {
         contentResolverWeakReference = WeakReference(contentResolver)
         this.name = name
         this.description = description
-    }
-
-    interface TargetCallback {
-        fun imageLoaded(url: String?)
-    }
-
-    private var imageLoadingListener: TargetCallback? = null
-
-    override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
         if (context is TargetCallback) {
-            imageLoadingListener = context as TargetCallback
+            imageLoadingListener = context
         } else {
             throw RuntimeException(context.toString()
                     + " must implement interface TargetCallback")
         }
+        Log.d("TAG", "FIRST LOAD")
+    }
+
+    override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
     }
 
     override fun onBitmapFailed(errorDrawable: Drawable?) {
@@ -55,6 +55,7 @@ class SaveImageHelper(): Target {
             //Log.d("TAG", "internal url = $url")
             imageLoadingListener?.imageLoaded(url)
         }
+        imageLoadingListener = null
         context = null
     }
 
