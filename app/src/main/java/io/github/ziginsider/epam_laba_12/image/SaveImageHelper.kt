@@ -1,9 +1,7 @@
 package io.github.ziginsider.epam_laba_12.image
 
-import android.app.ProgressDialog
 import android.content.ContentResolver
 import android.content.Context
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.provider.MediaStore
@@ -37,7 +35,6 @@ class SaveImageHelper(): Target {
             throw RuntimeException(context.toString()
                     + " must implement interface TargetCallback")
         }
-        Log.d("TAG", "FIRST LOAD")
     }
 
     override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
@@ -52,7 +49,6 @@ class SaveImageHelper(): Target {
         val url: String?
         if (resolver != null) {
             url = MediaStore.Images.Media.insertImage(resolver, bitmap, name, description)
-            //Log.d("TAG", "internal url = $url")
             imageLoadingListener?.imageLoaded(url)
         }
         imageLoadingListener = null
