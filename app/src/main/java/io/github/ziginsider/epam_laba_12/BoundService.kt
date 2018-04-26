@@ -21,4 +21,15 @@ class BoundService: Service() {
             return this@BoundService
         }
     }
+
+    fun doImageLoading(url: String, listener: ServiceImageLoadingListener) {
+        Thread(Runnable {
+            val storageUrl = imageLoading(url)
+            listener.onImageLoadingDone(storageUrl)
+        })
+    }
+
+    private fun imageLoading(url: String): String {
+        return ""
+    }
 }
