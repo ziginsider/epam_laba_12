@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity(), BoundService.ServiceImageLoadingListen
                 progressDialog.show()
 
                 boundService?.let {
-                    it.doImageLoading("https://us.123rf.com/450wm/mondaian/mondaian1701/mondaian170100117/71437596-roman-coliseum.jpg",
+                    it.doFileDownloading("https://us.123rf.com/450wm/mondaian/mondaian1701/mondaian170100117/71437596-roman-coliseum.jpg",
                             BoundServiceListener(this))
                 }
 
@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity(), BoundService.ServiceImageLoadingListen
         override fun onServiceConnected(className: ComponentName?, service: IBinder?) {
             val binder = service as BoundService.MyBinder
             boundService = binder.getService()
-            //boundService?.doImageLoading("https://us.123rf.com/450wm/mondaian/mondaian1701/mondaian170100117/71437596-roman-coliseum.jpg",
+            //boundService?.doFileDownloading("https://us.123rf.com/450wm/mondaian/mondaian1701/mondaian170100117/71437596-roman-coliseum.jpg",
             //        BoundServiceListener(this@MainActivity))
             Log.d("TAG", "onServiceConnected")
         }
