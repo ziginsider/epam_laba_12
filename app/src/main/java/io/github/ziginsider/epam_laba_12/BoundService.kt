@@ -26,7 +26,6 @@ class BoundService: Service(), SaveImageHelper.ImageLoadingListener {
 
         fun getService() : BoundService {
             return this@BoundService
-            Log.d("TAG", "getService")
         }
     }
     fun doImageLoading(url: String, listener: ServiceImageLoadingListener) {
@@ -37,7 +36,6 @@ class BoundService: Service(), SaveImageHelper.ImageLoadingListener {
     }
 
     private fun imageLoading(url: String): String {
-
         val fileName = UUID.randomUUID().toString() + ".jpg"
         Picasso.with(this)
                 .load("https://us.123rf.com/450wm/mondaian/mondaian1701/mondaian170100117/71437596-roman-coliseum.jpg")

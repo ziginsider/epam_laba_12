@@ -13,16 +13,13 @@ import android.os.IBinder
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.util.Log
-import com.squareup.picasso.Picasso
-import io.github.ziginsider.epam_laba_12.image.SaveImageHelper
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.indeterminateProgressDialog
 import org.jetbrains.anko.toast
 import java.lang.ref.WeakReference
-import java.util.*
 
 class MainActivity : AppCompatActivity(), BoundService.ServiceImageLoadingListener {
-    private val REQUEST_PERMISSION_CODE = 1
+    private val REQUEST_PERMISSION_EXTERNAL_STORAGE = 1
     private lateinit var progressDialog: ProgressDialog
     var boundService: BoundService? = null
     var isBound = false
@@ -37,37 +34,18 @@ class MainActivity : AppCompatActivity(), BoundService.ServiceImageLoadingListen
         isBound = true
 
         downloadButton.setOnClickListener {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED) {
+            if (checkPermission()) {
                 this.toast("You should grant permission")
-                ActivityCompat.requestPermissions(this,
-                        arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                        REQUEST_PERMISSION_CODE)
+                requestPermission()
             } else {
                 progressDialog = indeterminateProgressDialog("Loading", "Image loading...")
                 progressDialog.show()
-
-//                val fileName = UUID.randomUUID().toString() + ".jpg"
-//                Picasso.with(this)
-//                        .load("https://us.123rf.com/450wm/mondaian/mondaian1701/mondaian170100117/71437596-roman-coliseum.jpg")
-//                        //.resize(2000, 1000)
-//                        .into(SaveImageHelper(
-//                                this,
-//                                applicationContext.contentResolver,
-//                                fileName,
-//                                "image description"))
 
                 boundService?.let {
                     it.doImageLoading("https://us.123rf.com/450wm/mondaian/mondaian1701/mondaian170100117/71437596-roman-coliseum.jpg",
                             BoundServiceListener(this))
                 }
 
-                //Bound Service
-                Log.d("TAG", "downloadPress")
-//                bindService(Intent(this@MainActivity, BoundService::class.java),
-//                        myConnection,
-//                        Service.BIND_AUTO_CREATE)
-//                isBound = true
             }
         }
     }
@@ -76,8 +54,9 @@ class MainActivity : AppCompatActivity(), BoundService.ServiceImageLoadingListen
                                             grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
-            REQUEST_PERMISSION_CODE -> {
-                if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            REQUEST_PERMISSION_EXTERNAL_STORAGE -> {
+                if (grantResults.isNotEmpty()
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     toast("Permission granted")
                 } else {
                     toast("Permission denied")
@@ -85,13 +64,6 @@ class MainActivity : AppCompatActivity(), BoundService.ServiceImageLoadingListen
             }
         }
     }
-
-//    override fun imageLoaded(url: String?) {
-//        if (progressDialog.isShowing) {
-//            progressDialog.dismiss()
-//        }
-//        Log.d("TAG", "url = $url")
-//    }
 
     private val myConnection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName?, service: IBinder?) {
@@ -124,10 +96,20 @@ class MainActivity : AppCompatActivity(), BoundService.ServiceImageLoadingListen
 
     }
 
+    private fun checkPermission() = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+
+    private fun requestPermission() {
+        ActivityCompat.requestPermissions(this,
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                REQUEST_PERMISSION_EXTERNAL_STORAGE)
+    }
+
+
     private class BoundServiceListener(activity: MainActivity)
         : BoundService.ServiceImageLoadingListener {
         private val weakActivity: WeakReference<MainActivity>
-                = WeakReference<MainActivity>(activity)
+                = WeakReference(activity)
 
         override fun onImageLoadingDone(url: String?) {
             val localReferenceActivity = weakActivity.get()
@@ -142,4 +124,5 @@ class MainActivity : AppCompatActivity(), BoundService.ServiceImageLoadingListen
             }
         }
     }
+
 }
