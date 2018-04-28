@@ -108,8 +108,7 @@ class MainActivity : AppCompatActivity(), BoundService.ServiceImageLoadingListen
 
     private class BoundServiceListener(activity: MainActivity)
         : BoundService.ServiceImageLoadingListener {
-        private val weakActivity: WeakReference<MainActivity>
-                = WeakReference(activity)
+        private val weakActivity: WeakReference<MainActivity> = WeakReference(activity)
 
         override fun onImageLoadingDone(url: String?) {
             val localReferenceActivity = weakActivity.get()

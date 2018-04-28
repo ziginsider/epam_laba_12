@@ -4,9 +4,8 @@ import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
-import android.util.Log
 import com.squareup.picasso.Picasso
-import io.github.ziginsider.epam_laba_12.image.SaveImageHelper
+import io.github.ziginsider.epam_laba_12.download.SaveImageHelper
 import java.util.*
 
 class BoundService: Service(), SaveImageHelper.ImageLoadingListener {

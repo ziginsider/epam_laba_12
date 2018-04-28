@@ -1,4 +1,4 @@
-package io.github.ziginsider.epam_laba_12.image
+package io.github.ziginsider.epam_laba_12.download
 
 import android.content.ContentResolver
 import android.content.Context
