@@ -13,13 +13,14 @@ import android.os.IBinder
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.util.Log
+import io.github.ziginsider.epam_laba_12.download.Download
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.indeterminateProgressDialog
 import org.jetbrains.anko.toast
 import java.lang.ref.WeakReference
 
-class MainActivity : AppCompatActivity(), BoundService.ServiceImageLoadingListener {
-    private val REQUEST_PERMISSION_EXTERNAL_STORAGE = 1
+class MainActivity : AppCompatActivity(), BoundService.ServiceFileLoadingListener {
+    private val REQUEST_PERMISSION_EXTERNAL_STORAGE = 1 //TODO const val ?
     private lateinit var progressDialog: ProgressDialog
     var boundService: BoundService? = null
     var isBound = false
@@ -39,6 +40,9 @@ class MainActivity : AppCompatActivity(), BoundService.ServiceImageLoadingListen
                 requestPermission()
             } else {
                 progressDialog = indeterminateProgressDialog("Loading", "Image loading...")
+                progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL)
+                progressDialog.max = 100
+                progressDialog.setMessage("File Downloading...")
                 progressDialog.show()
 
                 boundService?.let {
@@ -92,7 +96,7 @@ class MainActivity : AppCompatActivity(), BoundService.ServiceImageLoadingListen
         }
     }
 
-    override fun onImageLoadingDone(url: String?) {
+    override fun onFileLoadingDone(url: String?) {
 
     }
 
@@ -107,16 +111,27 @@ class MainActivity : AppCompatActivity(), BoundService.ServiceImageLoadingListen
 
 
     private class BoundServiceListener(activity: MainActivity)
-        : BoundService.ServiceImageLoadingListener {
+        : BoundService.ServiceFileLoadingListener {
         private val weakActivity: WeakReference<MainActivity> = WeakReference(activity)
 
-        override fun onImageLoadingDone(url: String?) {
-            val localReferenceActivity = weakActivity.get()
-            localReferenceActivity?.let {
+        override fun onFileLoadingDone(url: String?) {
+            weakActivity.get()?.let {
                 with(it) {
                     runOnUiThread({
                         if (progressDialog.isShowing) {
                             progressDialog.dismiss()
+                        }
+                    })
+                }
+            }
+        }
+
+        override fun onFileLoadingProgress(download: Download) {
+            weakActivity.get()?.let {
+                with(it) {
+                    runOnUiThread({
+                        if (progressDialog.isShowing) {
+                            progressDialog.progress = download.progress
                         }
                     })
                 }

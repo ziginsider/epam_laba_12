@@ -19,12 +19,13 @@ import java.io.FileOutputStream
 import java.io.IOException
 
 class BoundService: Service(), SaveImageHelper.ImageLoadingListener {
-    interface ServiceImageLoadingListener {
-        fun onImageLoadingDone(url: String?)
+    interface ServiceFileLoadingListener {
+        fun onFileLoadingDone(url: String?)
+        fun onFileLoadingProgress(download: Download)
     }
 
     private val myBinder = MyBinder()
-    private var listener: ServiceImageLoadingListener? = null
+    private var listener: ServiceFileLoadingListener? = null
 
     private var notificationBuilder: NotificationCompat.Builder? = null
     private var notificationManager: NotificationManager? = null
@@ -41,7 +42,7 @@ class BoundService: Service(), SaveImageHelper.ImageLoadingListener {
             return this@BoundService
         }
     }
-    fun doFileDownloading(url: String, listener: ServiceImageLoadingListener) {
+    fun doFileDownloading(url: String, listener: ServiceFileLoadingListener) {
         this.listener = listener
 
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
@@ -110,8 +111,9 @@ class BoundService: Service(), SaveImageHelper.ImageLoadingListener {
             val currentTime = System.currentTimeMillis() - startTime
 
             if (currentTime > 1000 * timeCount) {
-                var download = Download(progress, current.toInt(), totalFileSize)
+                val download = Download(progress, current.toInt(), totalFileSize)
                 sendNotification(download)
+                //listener?.onFileLoadingProgress(download)
                 timeCount++
             }
 
@@ -125,7 +127,15 @@ class BoundService: Service(), SaveImageHelper.ImageLoadingListener {
     }
 
     private fun sendNotification(download: Download) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        // (1) change ProgressBar in Activity
+        listener?.onFileLoadingProgress(download)
+        // (2) change in notifications
+        notificationBuilder?.let {
+            it.setProgress(100, download.progress, false)
+            it.setContentText("Downloading file " + download.currentFileSize + "/"
+                    + totalFileSize + " MB")
+            notificationManager?.notify(0, it.build())
+        }
     }
 
     private fun onDownloadComplete() {
@@ -134,7 +144,7 @@ class BoundService: Service(), SaveImageHelper.ImageLoadingListener {
 
 
     override fun imageLoaded(url: String?) {
-        listener?.onImageLoadingDone(url)
+        listener?.onFileLoadingDone(url)
     }
 
     //TODO TaskCancel notificationManager.cancel(0)
