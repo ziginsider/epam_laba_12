@@ -1,7 +1,6 @@
 package io.github.ziginsider.epam_laba_12
 
 import android.Manifest
-import android.app.ProgressDialog
 import android.app.Service
 import android.content.ComponentName
 import android.content.Intent
@@ -14,7 +13,6 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import io.github.ziginsider.epam_laba_12.download.Download
 import kotlinx.android.synthetic.main.activity_main.*
-import org.jetbrains.anko.indeterminateProgressDialog
 import org.jetbrains.anko.toast
 import java.io.File
 import java.lang.ref.WeakReference
@@ -23,38 +21,25 @@ import io.github.ziginsider.epam_laba_12.download.DOWNLOADED_FILE_NAME
 import io.github.ziginsider.epam_laba_12.download.RETROFIT_BASE_URL
 import io.github.ziginsider.epam_laba_12.download.RETROFIT_GET_REQUEST
 
+const val REQUEST_PERMISSION_EXTERNAL_STORAGE = 1
 
 class MainActivity : AppCompatActivity() {
-    private val REQUEST_PERMISSION_EXTERNAL_STORAGE = 1 //TODO const val ?
-    private lateinit var progressDialog: ProgressDialog
-    var boundService: BoundService? = null
-    var isBound = false
+    private var boundService: BoundService? = null
+    private var isBound = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        bindService(Intent(this, BoundService::class.java),
-                myConnection,
-                Service.BIND_AUTO_CREATE)
-        isBound = true
 
         downloadButton.setOnClickListener {
             if (!checkPermission()) {
                 this.toast("You should grant permission")
                 requestPermission()
             } else {
-//                progressDialog = indeterminateProgressDialog("Loading", "Image loading...")
-//                progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL)
-//                progressDialog.max = 100
-//                progressDialog.setMessage("File Downloading...")
-//                progressDialog.show()
-
-                boundService?.let {
-                    it.doFileDownloading(RETROFIT_BASE_URL, RETROFIT_GET_REQUEST,
-                            DOWNLOADED_FILE_NAME, BoundServiceListener(this))
-                }
-
+                bindService(Intent(this, BoundService::class.java),
+                        myConnection,
+                        Service.BIND_AUTO_CREATE)
+                isBound = true
             }
         }
     }
@@ -78,6 +63,8 @@ class MainActivity : AppCompatActivity() {
         override fun onServiceConnected(className: ComponentName?, service: IBinder?) {
             val binder = service as BoundService.MyBinder
             boundService = binder.getService()
+            boundService?.doFileDownloading(RETROFIT_BASE_URL, RETROFIT_GET_REQUEST,
+                    DOWNLOADED_FILE_NAME, BoundServiceListener(this@MainActivity))
         }
 
         override fun onServiceDisconnected(p0: ComponentName?) {
@@ -85,20 +72,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        if (isBound) {
-            try {
-                unbindService(myConnection)
-                isBound = false
-            } catch (e: IllegalArgumentException) {
-                e.printStackTrace()
-            }
-        }
-    }
-
     private fun checkPermission() = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+            Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
 
     private fun requestPermission() {
         ActivityCompat.requestPermissions(this,
@@ -118,12 +93,23 @@ class MainActivity : AppCompatActivity() {
                         if (download.progress == 100) {
                             imageView.setImageBitmap(BitmapFactory.decodeFile(pathFile.path
                                     + File.separator + DOWNLOADED_FILE_NAME))
-                            textView.text = "Image Download complete"
+                            textView.text = "Image Download Complete"
+
+                            if (isBound) {
+                                try {
+                                    unbindService(myConnection)
+                                    isBound = false
+                                } catch (e: IllegalArgumentException) {
+                                    e.printStackTrace()
+                                }
+                            }
+                        } else {
+                            textView.text = String.format("Downloaded (%d/%d) MB",
+                                    download.currentFileSize, download.totalFileSize)
                         }
                     })
                 }
             }
         }
     }
-
 }
