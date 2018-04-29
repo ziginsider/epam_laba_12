@@ -9,7 +9,6 @@ import android.os.Environment
 import android.os.IBinder
 import android.support.v4.app.NotificationCompat
 import io.github.ziginsider.epam_laba_12.download.Download
-import io.github.ziginsider.epam_laba_12.download.SaveImageHelper
 import io.github.ziginsider.epam_laba_12.retrofit.RetrofitService
 import okhttp3.ResponseBody
 import retrofit2.Retrofit
@@ -18,9 +17,9 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 
-class BoundService: Service(), SaveImageHelper.ImageLoadingListener {
+class BoundService: Service() {
     interface ServiceFileLoadingListener {
-        fun onFileLoadingDone(url: String?)
+        fun onFileLoadingComplete(pathFile: File)
         fun onFileLoadingProgress(download: Download)
     }
 
@@ -30,6 +29,7 @@ class BoundService: Service(), SaveImageHelper.ImageLoadingListener {
     private var notificationBuilder: NotificationCompat.Builder? = null
     private var notificationManager: NotificationManager? = null
     private var totalFileSize: Int = 0
+    private lateinit var filePath: File
 
     override fun onBind(intent: Intent?): IBinder {
         val str = intent?.extras?.get("URL")
@@ -92,9 +92,8 @@ class BoundService: Service(), SaveImageHelper.ImageLoadingListener {
         val fileSize = body.contentLength()
 
         val bis = BufferedInputStream(body.byteStream(), 1024 * 8)
-        val outputFile
-                = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                "file.zip")
+        filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        val outputFile = File(filePath, "file.zip")
         val output = FileOutputStream(outputFile)
         var total = 0L
         val startTime = System.currentTimeMillis()
@@ -139,13 +138,11 @@ class BoundService: Service(), SaveImageHelper.ImageLoadingListener {
     }
 
     private fun onDownloadComplete() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        listener?.onFileLoadingComplete(filePath)
     }
 
 
-    override fun imageLoaded(url: String?) {
-        listener?.onFileLoadingDone(url)
-    }
+
 
     //TODO TaskCancel notificationManager.cancel(0)
 }

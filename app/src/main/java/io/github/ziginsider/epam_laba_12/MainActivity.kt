@@ -17,9 +17,10 @@ import io.github.ziginsider.epam_laba_12.download.Download
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.indeterminateProgressDialog
 import org.jetbrains.anko.toast
+import java.io.File
 import java.lang.ref.WeakReference
 
-class MainActivity : AppCompatActivity(), BoundService.ServiceFileLoadingListener {
+class MainActivity : AppCompatActivity() {
     private val REQUEST_PERMISSION_EXTERNAL_STORAGE = 1 //TODO const val ?
     private lateinit var progressDialog: ProgressDialog
     var boundService: BoundService? = null
@@ -96,10 +97,6 @@ class MainActivity : AppCompatActivity(), BoundService.ServiceFileLoadingListene
         }
     }
 
-    override fun onFileLoadingDone(url: String?) {
-
-    }
-
     private fun checkPermission() = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
 
@@ -114,11 +111,12 @@ class MainActivity : AppCompatActivity(), BoundService.ServiceFileLoadingListene
         : BoundService.ServiceFileLoadingListener {
         private val weakActivity: WeakReference<MainActivity> = WeakReference(activity)
 
-        override fun onFileLoadingDone(url: String?) {
+        override fun onFileLoadingComplete(pathFile: File) {
             weakActivity.get()?.let {
                 with(it) {
                     runOnUiThread({
                         if (progressDialog.isShowing) {
+                            progressDialog.progress = 100
                             progressDialog.dismiss()
                         }
                     })
