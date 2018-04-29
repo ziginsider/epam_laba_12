@@ -55,7 +55,7 @@ class BoundService: Service() {
         Thread(Runnable {
             this.listener = listener
             notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
-            notificationBuilder = NotificationCompat.Builder(this)
+            notificationBuilder = NotificationCompat.Builder(this, "ch1")
                     .setSmallIcon(R.drawable.ic_file_download)
                     .setContentTitle("Download")
                     .setContentText("Downloading file")

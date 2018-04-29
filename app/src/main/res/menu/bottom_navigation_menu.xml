@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/chooseStartedService"
+        android:enabled="true"
+        android:icon="@drawable/ic_started_service"
+        android:title="started service"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/chooseBoundService"
+        android:enabled="true"
+        android:icon="@drawable/ic_bound_service"
+        android:title="bound service"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/chooseJobScheduler"
+        android:enabled="true"
+        android:icon="@drawable/ic_job_scheduler"
+        android:title="job scheduler"
+        app:showAsAction="ifRoom" />
+</menu>

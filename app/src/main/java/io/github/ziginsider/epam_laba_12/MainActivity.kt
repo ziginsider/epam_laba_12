@@ -13,13 +13,14 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import io.github.ziginsider.epam_laba_12.download.Download
 import kotlinx.android.synthetic.main.activity_main.*
-import org.jetbrains.anko.toast
 import java.io.File
 import java.lang.ref.WeakReference
 import android.graphics.BitmapFactory
+import android.view.MenuItem
 import io.github.ziginsider.epam_laba_12.download.DOWNLOADED_FILE_NAME
 import io.github.ziginsider.epam_laba_12.download.RETROFIT_BASE_URL
 import io.github.ziginsider.epam_laba_12.download.RETROFIT_GET_REQUEST
+import io.github.ziginsider.epam_laba_12.utils.toast
 
 const val REQUEST_PERMISSION_EXTERNAL_STORAGE = 1
 
@@ -30,6 +31,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        showBottomNavigationMenu()
 
         downloadButton.setOnClickListener {
             if (!checkPermission()) {
@@ -56,6 +59,20 @@ class MainActivity : AppCompatActivity() {
                     toast("Permission denied")
                 }
             }
+        }
+    }
+
+    private fun showBottomNavigationMenu() {
+        bottomNavigation.setOnNavigationItemSelectedListener { item: MenuItem ->
+            when (item.itemId) {
+                R.id.chooseStartedService -> {
+                }
+                R.id.chooseBoundService -> {
+                }
+                R.id.chooseJobScheduler -> {
+                }
+            }
+            true
         }
     }
 
@@ -94,15 +111,7 @@ class MainActivity : AppCompatActivity() {
                             imageView.setImageBitmap(BitmapFactory.decodeFile(pathFile.path
                                     + File.separator + DOWNLOADED_FILE_NAME))
                             textView.text = "Image Download Complete"
-
-                            if (isBound) {
-                                try {
-                                    unbindService(myConnection)
-                                    isBound = false
-                                } catch (e: IllegalArgumentException) {
-                                    e.printStackTrace()
-                                }
-                            }
+                            unbindBoundService()
                         } else {
                             textView.text = String.format("Downloaded (%d/%d) MB",
                                     download.currentFileSize, download.totalFileSize)
@@ -110,6 +119,15 @@ class MainActivity : AppCompatActivity() {
                     })
                 }
             }
+        }
+    }
+
+    private fun unbindBoundService() {
+        try {
+            unbindService(myConnection)
+            isBound = false
+        } catch (e: IllegalArgumentException) {
+            e.printStackTrace()
         }
     }
 }
