@@ -12,13 +12,17 @@ import android.os.Bundle
 import android.os.IBinder
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
-import android.util.Log
 import io.github.ziginsider.epam_laba_12.download.Download
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.indeterminateProgressDialog
 import org.jetbrains.anko.toast
 import java.io.File
 import java.lang.ref.WeakReference
+import android.graphics.BitmapFactory
+import io.github.ziginsider.epam_laba_12.download.DOWNLOADED_FILE_NAME
+import io.github.ziginsider.epam_laba_12.download.RETROFIT_BASE_URL
+import io.github.ziginsider.epam_laba_12.download.RETROFIT_GET_REQUEST
+
 
 class MainActivity : AppCompatActivity() {
     private val REQUEST_PERMISSION_EXTERNAL_STORAGE = 1 //TODO const val ?
@@ -36,7 +40,7 @@ class MainActivity : AppCompatActivity() {
         isBound = true
 
         downloadButton.setOnClickListener {
-            if (checkPermission()) {
+            if (!checkPermission()) {
                 this.toast("You should grant permission")
                 requestPermission()
             } else {
@@ -47,8 +51,8 @@ class MainActivity : AppCompatActivity() {
                 progressDialog.show()
 
                 boundService?.let {
-                    it.doFileDownloading("https://us.123rf.com/450wm/mondaian/mondaian1701/mondaian170100117/71437596-roman-coliseum.jpg",
-                            BoundServiceListener(this))
+                    it.doFileDownloading(RETROFIT_BASE_URL, RETROFIT_GET_REQUEST,
+                            DOWNLOADED_FILE_NAME, BoundServiceListener(this))
                 }
 
             }
@@ -74,14 +78,10 @@ class MainActivity : AppCompatActivity() {
         override fun onServiceConnected(className: ComponentName?, service: IBinder?) {
             val binder = service as BoundService.MyBinder
             boundService = binder.getService()
-            //boundService?.doFileDownloading("https://us.123rf.com/450wm/mondaian/mondaian1701/mondaian170100117/71437596-roman-coliseum.jpg",
-            //        BoundServiceListener(this@MainActivity))
-            Log.d("TAG", "onServiceConnected")
         }
 
         override fun onServiceDisconnected(p0: ComponentName?) {
             boundService = null
-            Log.d("TAG", "onServiceDisconnected")
         }
     }
 
@@ -118,6 +118,9 @@ class MainActivity : AppCompatActivity() {
                         if (progressDialog.isShowing) {
                             progressDialog.progress = 100
                             progressDialog.dismiss()
+
+                            imageView.setImageBitmap(BitmapFactory.decodeFile(pathFile.path
+                                    + File.separator + DOWNLOADED_FILE_NAME))
                         }
                     })
                 }

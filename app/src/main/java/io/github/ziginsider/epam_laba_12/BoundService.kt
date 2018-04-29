@@ -9,7 +9,7 @@ import android.os.Environment
 import android.os.IBinder
 import android.support.v4.app.NotificationCompat
 import io.github.ziginsider.epam_laba_12.download.Download
-import io.github.ziginsider.epam_laba_12.retrofit.RetrofitService
+import io.github.ziginsider.epam_laba_12.download.RetrofitService
 import okhttp3.ResponseBody
 import retrofit2.Retrofit
 import java.io.BufferedInputStream
@@ -25,100 +25,89 @@ class BoundService: Service() {
 
     private val myBinder = MyBinder()
     private var listener: ServiceFileLoadingListener? = null
-
     private var notificationBuilder: NotificationCompat.Builder? = null
     private var notificationManager: NotificationManager? = null
-    private var totalFileSize: Int = 0
+    private var totalMBFileSize: Int = 0
     private lateinit var filePath: File
 
     override fun onBind(intent: Intent?): IBinder {
-        val str = intent?.extras?.get("URL")
         return myBinder
     }
 
-    inner class MyBinder: Binder() {
+    override fun onUnbind(intent: Intent?): Boolean {
+        notificationManager?.cancel(0)
+        return super.onUnbind(intent)
+    }
 
+    inner class MyBinder: Binder() {
         fun getService() : BoundService {
             return this@BoundService
         }
     }
-    fun doFileDownloading(url: String, listener: ServiceFileLoadingListener) {
-        this.listener = listener
 
-        notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
-        notificationBuilder = NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.ic_file_download)
-                .setContentTitle("Download")
-                .setContentText("Downloading file")
-                .setAutoCancel(true)
-        notificationManager?.notify(0, notificationBuilder?.build())
-
-        //Thread(Runnable {
-            initDownload(url)
-        //}).start()
+    /**
+     *
+     *
+     */
+    fun doFileDownloading(urlBase: String,
+                          urlFile: String,
+                          nameDownloadedFile: String,
+                          listener: ServiceFileLoadingListener) {
+        Thread(Runnable {
+            this.listener = listener
+            notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
+            notificationBuilder = NotificationCompat.Builder(this)
+                    .setSmallIcon(R.drawable.ic_file_download)
+                    .setContentTitle("Download")
+                    .setContentText("Downloading file")
+                    .setAutoCancel(true)
+            notificationManager?.notify(0, notificationBuilder?.build())
+            initDownload(urlBase, urlFile, nameDownloadedFile)
+        }).start()
     }
 
-    private fun initDownload(url: String): String {
-//        val fileName = UUID.randomUUID().toString() + ".jpg"
-//        Picasso.with(this)
-//                .load("https://us.123rf.com/450wm/mondaian/mondaian1701/mondaian170100117/71437596-roman-coliseum.jpg")
-//                //.resize(2000, 1000)
-//                .into(SaveImageHelper(
-//                        this,
-//                        applicationContext.contentResolver,
-//                        fileName,
-//                        "image description"))
-
-        val retrofit = Retrofit.Builder() //TODO in RetrofitService.kt like an companion object
-                .baseUrl(url)
+    private fun initDownload(urlBase: String, urlFile: String, nameDownloadedFile: String) {
+        val retrofit = Retrofit.Builder()
+                .baseUrl(urlBase)
                 .build()
-
         val retrofitService = retrofit.create(RetrofitService::class.java)
-
-        val request = retrofitService.downloadFile()
+        val request = retrofitService.downloadFile(urlFile)
         try {
-            request.execute().body()?.let { downloadFile(it) }
+            request.execute().body()?.let { downloadFile(it, nameDownloadedFile) }
         } catch (e: IOException) {
             e.printStackTrace()
         }
-
-        return ""
     }
 
     @Throws(IOException::class)
-    private fun downloadFile(body: ResponseBody) {
-        var count: Int
+    private fun downloadFile(body: ResponseBody, newFileName: String) {
         val data = ByteArray(1024 * 4)
         val fileSize = body.contentLength()
-
         val bis = BufferedInputStream(body.byteStream(), 1024 * 8)
         filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-        val outputFile = File(filePath, "file.zip")
+        val outputFile = File(filePath, newFileName)
         val output = FileOutputStream(outputFile)
-        var total = 0L
         val startTime = System.currentTimeMillis()
+        var count: Int
+        var currentBytesFileSize = 0L
         var timeCount = 1
 
-        while (bis.read(data) != -1) {
-            count = bis.read(data)
-
-            total += count
-            totalFileSize = (fileSize / Math.pow(1024.0, 2.0)).toInt()
-            val current = Math.round(total / Math.pow(1024.0, 2.0))
-
-            val progress = (total * 100 / fileSize).toInt()
+        count = bis.read(data)
+        while (count != -1) {
+            currentBytesFileSize += count
+            totalMBFileSize = (fileSize / Math.pow(1024.0, 2.0)).toInt()
+            val currentMBFileSize = Math.round(currentBytesFileSize / Math.pow(1024.0, 2.0))
+            val progress = (currentBytesFileSize * 100 / fileSize).toInt()
             val currentTime = System.currentTimeMillis() - startTime
-
+            //renew 1 time per second
             if (currentTime > 1000 * timeCount) {
-                val download = Download(progress, current.toInt(), totalFileSize)
+                val download = Download(progress, currentMBFileSize.toInt(), totalMBFileSize)
                 sendNotification(download)
-                //listener?.onFileLoadingProgress(download)
                 timeCount++
             }
-
             output.write(data, 0, count)
+            count = bis.read(data)
         }
-
         onDownloadComplete()
         output.flush()
         output.close()
@@ -132,17 +121,20 @@ class BoundService: Service() {
         notificationBuilder?.let {
             it.setProgress(100, download.progress, false)
             it.setContentText("Downloading file " + download.currentFileSize + "/"
-                    + totalFileSize + " MB")
+                    + totalMBFileSize + " MB")
             notificationManager?.notify(0, it.build())
         }
     }
 
     private fun onDownloadComplete() {
+        // (1) change ProgressBar in Activity
         listener?.onFileLoadingComplete(filePath)
+        // (2) change in notifications
+        notificationManager?.cancel(0)
+        notificationBuilder?.let {
+            it.setProgress(0, 0, false)
+            it.setContentText("File Downloaded")
+            notificationManager?.notify(0, it.build())
+        }
     }
-
-
-
-
-    //TODO TaskCancel notificationManager.cancel(0)
 }
