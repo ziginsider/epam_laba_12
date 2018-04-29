@@ -19,8 +19,7 @@ import java.io.IOException
 
 class BoundService: Service() {
     interface ServiceFileLoadingListener {
-        fun onFileLoadingComplete(pathFile: File)
-        fun onFileLoadingProgress(download: Download)
+        fun onFileLoadingProgress(download: Download, pathFile: File)
     }
 
     private val myBinder = MyBinder()
@@ -100,7 +99,7 @@ class BoundService: Service() {
             val progress = (currentBytesFileSize * 100 / fileSize).toInt()
             val currentTime = System.currentTimeMillis() - startTime
             //renew 1 time per second
-            if (currentTime > 1000 * timeCount) {
+            if (currentTime > 100 * timeCount) {
                 val download = Download(progress, currentMBFileSize.toInt(), totalMBFileSize)
                 sendNotification(download)
                 timeCount++
@@ -116,7 +115,7 @@ class BoundService: Service() {
 
     private fun sendNotification(download: Download) {
         // (1) change ProgressBar in Activity
-        listener?.onFileLoadingProgress(download)
+        listener?.onFileLoadingProgress(download, filePath)
         // (2) change in notifications
         notificationBuilder?.let {
             it.setProgress(100, download.progress, false)
@@ -128,7 +127,7 @@ class BoundService: Service() {
 
     private fun onDownloadComplete() {
         // (1) change ProgressBar in Activity
-        listener?.onFileLoadingComplete(filePath)
+        listener?.onFileLoadingProgress(Download(100, 0, 0), filePath)
         // (2) change in notifications
         notificationManager?.cancel(0)
         notificationBuilder?.let {

@@ -44,11 +44,11 @@ class MainActivity : AppCompatActivity() {
                 this.toast("You should grant permission")
                 requestPermission()
             } else {
-                progressDialog = indeterminateProgressDialog("Loading", "Image loading...")
-                progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL)
-                progressDialog.max = 100
-                progressDialog.setMessage("File Downloading...")
-                progressDialog.show()
+//                progressDialog = indeterminateProgressDialog("Loading", "Image loading...")
+//                progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL)
+//                progressDialog.max = 100
+//                progressDialog.setMessage("File Downloading...")
+//                progressDialog.show()
 
                 boundService?.let {
                     it.doFileDownloading(RETROFIT_BASE_URL, RETROFIT_GET_REQUEST,
@@ -106,33 +106,19 @@ class MainActivity : AppCompatActivity() {
                 REQUEST_PERMISSION_EXTERNAL_STORAGE)
     }
 
-
     private class BoundServiceListener(activity: MainActivity)
         : BoundService.ServiceFileLoadingListener {
         private val weakActivity: WeakReference<MainActivity> = WeakReference(activity)
 
-        override fun onFileLoadingComplete(pathFile: File) {
+        override fun onFileLoadingProgress(download: Download, pathFile: File) {
             weakActivity.get()?.let {
                 with(it) {
                     runOnUiThread({
-                        if (progressDialog.isShowing) {
-                            progressDialog.progress = 100
-                            progressDialog.dismiss()
-
+                        progressBar.progress = download.progress
+                        if (download.progress == 100) {
                             imageView.setImageBitmap(BitmapFactory.decodeFile(pathFile.path
                                     + File.separator + DOWNLOADED_FILE_NAME))
-                        }
-                    })
-                }
-            }
-        }
-
-        override fun onFileLoadingProgress(download: Download) {
-            weakActivity.get()?.let {
-                with(it) {
-                    runOnUiThread({
-                        if (progressDialog.isShowing) {
-                            progressDialog.progress = download.progress
+                            textView.text = "Image Download complete"
                         }
                     })
                 }
