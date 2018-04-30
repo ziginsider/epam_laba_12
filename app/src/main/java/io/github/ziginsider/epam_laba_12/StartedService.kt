@@ -17,10 +17,7 @@ import java.io.IOException
 import android.support.v4.content.LocalBroadcastManager
 import io.github.ziginsider.epam_laba_12.download.Download
 
-
-
 class StartedService : Service() {
-
     private var notificationBuilder: NotificationCompat.Builder? = null
     private var notificationManager: NotificationManager? = null
     private var totalMBFileSize: Int = 0

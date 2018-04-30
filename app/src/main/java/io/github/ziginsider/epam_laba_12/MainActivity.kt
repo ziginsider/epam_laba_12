@@ -52,8 +52,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-
-        registerReceiver()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>,
@@ -101,7 +99,6 @@ class MainActivity : AppCompatActivity() {
 
     private val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-
             if (intent.action == ACTION_MESSAGE_PROGRESS) {
                 val (progress, currentFileSize, totalFileSize)
                         = intent.getParcelableExtra<Download>(KEY_MESSAGE_PROGRESS)
@@ -114,7 +111,6 @@ class MainActivity : AppCompatActivity() {
                             + File.separator + DOWNLOADED_FILE_NAME))
                     textView.text = "Image Download Complete"
                     stopService(Intent(this@MainActivity, StartedService::class.java))
-                    Log.d("TAG","E-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee!")
                 } else {
                     textView.text = String.format("Downloaded (%d/%d) MB", currentFileSize,
                             totalFileSize)
@@ -126,7 +122,10 @@ class MainActivity : AppCompatActivity() {
     private fun showBottomNavigationMenu() {
         bottomNavigation.setOnNavigationItemSelectedListener { item: MenuItem ->
             when (item.itemId) {
-                R.id.chooseStartedService -> downloadingWay = CHOOSE_STARTED_SERVICE
+                R.id.chooseStartedService -> {
+                    downloadingWay = CHOOSE_STARTED_SERVICE
+                    registerReceiver()
+                }
                 R.id.chooseBoundService -> downloadingWay = CHOOSE_BOUND_SERVICE
                 R.id.chooseJobScheduler -> downloadingWay = CHOOSE_JOB_SCHEDULER
             }
