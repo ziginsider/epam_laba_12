@@ -98,7 +98,7 @@ class BoundService: Service() {
             val currentMBFileSize = Math.round(currentBytesFileSize / Math.pow(1024.0, 2.0))
             val progress = (currentBytesFileSize * 100 / fileSize).toInt()
             val currentTime = System.currentTimeMillis() - startTime
-            //renew 1 time per second
+            //renew 10 times per second
             if (currentTime > 100 * timeCount) {
                 val download = Download(progress, currentMBFileSize.toInt(), totalMBFileSize)
                 sendNotification(download)
