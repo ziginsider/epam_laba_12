@@ -1,51 +1,38 @@
 package io.github.ziginsider.epam_laba_12
 
+import android.app.IntentService
 import android.app.NotificationManager
-import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.Environment
 import android.support.v4.app.NotificationCompat
-import io.github.ziginsider.epam_laba_12.download.*
+import android.support.v4.content.LocalBroadcastManager
+import io.github.ziginsider.epam_laba_12.download.Download
+import io.github.ziginsider.epam_laba_12.download.RetrofitService
 import okhttp3.ResponseBody
 import retrofit2.Retrofit
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import android.support.v4.content.LocalBroadcastManager
-import io.github.ziginsider.epam_laba_12.download.Download
 
-class StartedService : Service() {
+class ScheduledService(name: String?) : IntentService(name) {
     private var notificationBuilder: NotificationCompat.Builder? = null
     private var notificationManager: NotificationManager? = null
     private var totalMBFileSize: Int = 0
     private lateinit var filePath: File
 
-    override fun onBind(intent: Intent?) = null
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        intent?.let {
-            doFileDownloading(it.getStringExtra(KEY_BASE_URL), it.getStringExtra(KEY_GET_REQUEST),
-                    it.getStringExtra(KEY_FILE_NAME))
-        }
-        return Service.START_REDELIVER_INTENT
-    }
-
-    fun doFileDownloading(urlBase: String,
-                          urlFile: String,
-                          nameDownloadedFile: String) {
-        Thread(Runnable {
-            notificationManager = getSystemService(Context.NOTIFICATION_SERVICE)
-                    as NotificationManager?
-            notificationBuilder = NotificationCompat.Builder(this, "ch1")
-                    .setSmallIcon(R.drawable.ic_file_download)
-                    .setContentTitle("Download")
-                    .setContentText("Downloading file")
-                    .setAutoCancel(true)
-            notificationManager?.notify(0, notificationBuilder?.build())
-            initDownload(urlBase, urlFile, nameDownloadedFile)
-        }).start()
+    override fun onHandleIntent(intent: Intent?) {
+        notificationManager = getSystemService(Context.NOTIFICATION_SERVICE)
+                as NotificationManager?
+        notificationBuilder = NotificationCompat.Builder(this, "ch1")
+                .setSmallIcon(R.drawable.ic_file_download)
+                .setContentTitle("Download")
+                .setContentText("Downloading file")
+                .setAutoCancel(true)
+        notificationManager?.notify(0, notificationBuilder?.build())
+        initDownload(urlBase, urlFile, nameDownloadedFile)
     }
 
     private fun initDownload(urlBase: String, urlFile: String, nameDownloadedFile: String) {
