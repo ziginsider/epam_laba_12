@@ -8,7 +8,6 @@ import android.os.Build
 import io.github.ziginsider.epam_laba_12.download.DOWNLOADED_FILE_NAME
 import io.github.ziginsider.epam_laba_12.download.RETROFIT_BASE_URL
 import io.github.ziginsider.epam_laba_12.download.RETROFIT_GET_REQUEST
-import android.content.Context.JOB_SCHEDULER_SERVICE
 import android.app.job.JobScheduler
 import android.content.ComponentName
 import android.content.Context
