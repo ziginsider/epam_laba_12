@@ -9,7 +9,7 @@ import android.os.Environment
 import android.os.IBinder
 import android.support.v4.app.NotificationCompat
 import io.github.ziginsider.epam_laba_12.download.Download
-import io.github.ziginsider.epam_laba_12.download.RetrofitService
+import io.github.ziginsider.epam_laba_12.download.RetrofitDownload
 import okhttp3.ResponseBody
 import retrofit2.Retrofit
 import java.io.BufferedInputStream
@@ -17,6 +17,13 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 
+/**
+ * Implementation Bound Service. Runs file downloading with showing notification and
+ * progress of download
+ *
+ * @since 2018-04-27
+ * @author Alex Kisel
+ */
 class BoundService : Service() {
     interface ServiceFileLoadingListener {
         fun onFileLoadingProgress(download: Download, pathFile: File)
@@ -45,14 +52,18 @@ class BoundService : Service() {
     }
 
     /**
+     * Runs file downloading with showing notification and progress of download
      *
-     *
+     * @param urlBase URL address of file downloading without file's name
+     * @param urlFile Get request with file's name
+     * @param nameDownloadedFile new file's name for external storage
      */
     fun doFileDownloading(urlBase: String, urlFile: String, nameDownloadedFile: String,
                           listener: ServiceFileLoadingListener) {
         Thread(Runnable {
             this.listener = listener
-            notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
+            notificationManager = getSystemService(Context.NOTIFICATION_SERVICE)
+                    as NotificationManager?
             notificationBuilder = NotificationCompat.Builder(this, "ch1")
                     .setSmallIcon(R.drawable.ic_file_download)
                     .setContentTitle("Download")
@@ -67,7 +78,7 @@ class BoundService : Service() {
         val retrofit = Retrofit.Builder()
                 .baseUrl(urlBase)
                 .build()
-        val retrofitService = retrofit.create(RetrofitService::class.java)
+        val retrofitService = retrofit.create(RetrofitDownload::class.java)
         val request = retrofitService.downloadFile(urlFile)
         try {
             request.execute().body()?.let { downloadFile(it, nameDownloadedFile) }

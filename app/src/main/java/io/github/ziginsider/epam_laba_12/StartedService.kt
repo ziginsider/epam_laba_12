@@ -16,6 +16,13 @@ import java.io.IOException
 import android.support.v4.content.LocalBroadcastManager
 import io.github.ziginsider.epam_laba_12.download.Download
 
+/**
+ * Implementation Started Service. Runs file downloading with showing notification and
+ * progress of download
+ *
+ * @since 2018-04-28
+ * @author Alex Kisel
+ */
 class StartedService : Service() {
     private var notificationBuilder: NotificationCompat.Builder? = null
     private var notificationManager: NotificationManager? = null
@@ -32,9 +39,19 @@ class StartedService : Service() {
         return Service.START_REDELIVER_INTENT
     }
 
-    fun doFileDownloading(urlBase: String,
-                          urlFile: String,
-                          nameDownloadedFile: String) {
+    override fun onDestroy() {
+        super.onDestroy()
+        notificationManager?.cancel(0)
+    }
+
+    /**
+     * Runs file downloading with showing notification and progress of download
+     *
+     * @param urlBase URL address of file downloading without file's name
+     * @param urlFile Get request with file's name
+     * @param nameDownloadedFile new file's name for external storage
+     */
+    private fun doFileDownloading(urlBase: String, urlFile: String, nameDownloadedFile: String) {
         Thread(Runnable {
             notificationManager = getSystemService(Context.NOTIFICATION_SERVICE)
                     as NotificationManager?
@@ -52,7 +69,7 @@ class StartedService : Service() {
         val retrofit = Retrofit.Builder()
                 .baseUrl(urlBase)
                 .build()
-        val retrofitService = retrofit.create(RetrofitService::class.java)
+        val retrofitService = retrofit.create(RetrofitDownload::class.java)
         val request = retrofitService.downloadFile(urlFile)
         try {
             request.execute().body()?.let { downloadFile(it, nameDownloadedFile) }
@@ -125,10 +142,5 @@ class StartedService : Service() {
             it.setContentText("File Downloaded")
             notificationManager?.notify(0, it.build())
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        notificationManager?.cancel(0)
     }
 }

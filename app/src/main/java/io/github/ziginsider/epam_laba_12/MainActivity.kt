@@ -3,8 +3,6 @@ package io.github.ziginsider.epam_laba_12
 import android.Manifest
 import android.annotation.TargetApi
 import android.app.Service
-import android.app.job.JobInfo
-import android.app.job.JobScheduler
 import android.content.*
 import android.content.pm.PackageManager
 import android.support.v7.app.AppCompatActivity
@@ -20,12 +18,10 @@ import android.view.MenuItem
 import io.github.ziginsider.epam_laba_12.download.*
 import io.github.ziginsider.epam_laba_12.utils.toast
 import android.support.v4.content.LocalBroadcastManager
-import android.util.Log
 import io.github.ziginsider.epam_laba_12.download.Download
 import android.content.ComponentName
 import android.os.Build
 import java.util.concurrent.TimeUnit
-
 
 const val REQUEST_PERMISSION_EXTERNAL_STORAGE = 1
 const val CHOOSE_STARTED_SERVICE = 0
@@ -35,6 +31,20 @@ const val ACTION_MESSAGE_PROGRESS = "message_started_service_progress"
 const val KEY_MESSAGE_PROGRESS = "download"
 const val KEY_MESSAGE_FILE = "file_name"
 
+/**
+ * Activity that displays bottom navigation view, that lets to choose different way download
+ * file (image) into external storage.
+ *
+ * Button (start download) runs execute [StartedService], [BoundService] or [JobSchedulerService]
+ * depending on the choice bottom's navigation view.
+ *
+ * While downloading the file, a notification with a progress of download is displayed.
+ *
+ * After downloading the file (image), it is displayed on the screen.
+ *
+ * @since 2018-04-25
+ * @author Alex Kisel
+ */
 class MainActivity : AppCompatActivity() {
     private var boundService: BoundService? = null
     private var isBound = false
@@ -43,13 +53,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         showBottomNavigationMenu()
-
         initDownloadButton()
-
         registerReceiver()
-
         textView.text = getString(R.string.download_way_started_service)
     }
 
@@ -147,9 +153,7 @@ class MainActivity : AppCompatActivity() {
                 val (progress, currentFileSize, totalFileSize)
                         = intent.getParcelableExtra<Download>(KEY_MESSAGE_PROGRESS)
                 val pathFile = intent.getStringExtra(KEY_MESSAGE_FILE)
-
                 progressBar.progress = progress
-
                 if (progress == 100) {
                     imageView.setImageBitmap(BitmapFactory.decodeFile(pathFile
                             + File.separator + DOWNLOADED_FILE_NAME))

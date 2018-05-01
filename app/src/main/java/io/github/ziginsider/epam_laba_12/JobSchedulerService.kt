@@ -13,31 +13,44 @@ import android.content.ComponentName
 import android.content.Context
 import android.util.Log
 
-
 const val JOB_START_COUNT_TIMES = 5
 const val JOB_ID = 13
 
+/**
+ * Implementation Job Scheduler. Runs file downloading every 2 hours with showing notification and
+ * progress of download. Repeats this downloading five times.
+ *
+ * @since 2018-04-30
+ * @author Alex Kisel
+ */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-class JobSchedulerService: JobService() {
+class JobSchedulerService : JobService() {
 
     companion object {
         private var counter = 0
         private var context: Context? = null
 
+        /**
+         * Runs Job Scheduler with a periodic interval
+         *
+         * @param intervalMillis the interval in milliseconds to repeat the job
+         */
         fun schedule(context: Context, intervalMillis: Long) {
             this.context = context
             val serviceComponent = ComponentName(context, JobSchedulerService::class.java)
             val infoBuilder = JobInfo.Builder(JOB_ID, serviceComponent)
             infoBuilder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
                     .setPeriodic(intervalMillis)
-
             val info = infoBuilder.build()
-
             val scheduler
-                    = context.getSystemService(android.content.Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+                    = context.getSystemService(android.content.Context.JOB_SCHEDULER_SERVICE)
+                            as JobScheduler
             scheduler.schedule(info)
         }
 
+        /**
+         * Cancel current Job
+         */
         fun cancel(context: Context?) {
             context?.let {
                 val jobScheduler

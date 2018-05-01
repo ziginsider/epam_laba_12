@@ -17,6 +17,13 @@ import java.io.IOException
 
 const val ACTION = "sheduled_action"
 
+/**
+ * Implementation IntentService. Runs file downloading with showing notification and
+ * progress of download
+ *
+ * @since 2018-04-29
+ * @author Alex Kisel
+ */
 class ScheduledService(name: String? = "Scheduled Service") : IntentService(name) {
     private var notificationBuilder: NotificationCompat.Builder? = null
     private var notificationManager: NotificationManager? = null
@@ -24,6 +31,13 @@ class ScheduledService(name: String? = "Scheduled Service") : IntentService(name
     private lateinit var filePath: File
 
     companion object {
+        /**
+         * Runs file downloading with showing notification and progress of download
+         *
+         * @param urlBase URL address of file downloading without file's name
+         * @param urlFile Get request with file's name
+         * @param nameDownloadedFile new file's name for external storage
+         */
         fun startScheduledJob(context: Context, urlBase: String, urlFile: String,
                               nameDownloadedFile: String) {
             val intent = Intent(context, ScheduledService::class.java)
@@ -58,7 +72,7 @@ class ScheduledService(name: String? = "Scheduled Service") : IntentService(name
         val retrofit = Retrofit.Builder()
                 .baseUrl(urlBase)
                 .build()
-        val retrofitService = retrofit.create(RetrofitService::class.java)
+        val retrofitService = retrofit.create(RetrofitDownload::class.java)
         val request = retrofitService.downloadFile(urlFile)
         try {
             request.execute().body()?.let { downloadFile(it, nameDownloadedFile) }
