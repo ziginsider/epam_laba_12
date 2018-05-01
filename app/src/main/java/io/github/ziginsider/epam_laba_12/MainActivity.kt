@@ -1,7 +1,10 @@
 package io.github.ziginsider.epam_laba_12
 
 import android.Manifest
+import android.annotation.TargetApi
 import android.app.Service
+import android.app.job.JobInfo
+import android.app.job.JobScheduler
 import android.content.*
 import android.content.pm.PackageManager
 import android.support.v7.app.AppCompatActivity
@@ -19,6 +22,9 @@ import io.github.ziginsider.epam_laba_12.utils.toast
 import android.support.v4.content.LocalBroadcastManager
 import android.util.Log
 import io.github.ziginsider.epam_laba_12.download.Download
+import android.content.ComponentName
+import android.os.Build
+import java.util.concurrent.TimeUnit
 
 
 const val REQUEST_PERMISSION_EXTERNAL_STORAGE = 1
@@ -123,8 +129,19 @@ class MainActivity : AppCompatActivity() {
         isBound = true
     }
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private fun runJobScheduler() {
+        val serviceComponent = ComponentName(this, JobSchedulerService::class.java)
+        val id = System.currentTimeMillis().toInt()
+        val infoBuilder = JobInfo.Builder(id, serviceComponent)
+        infoBuilder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
+                .setPeriodic(TimeUnit.HOURS.toMillis(2))
 
+        val info = infoBuilder.build()
+
+        val scheduler
+                = this.getSystemService(android.content.Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+        scheduler.schedule(info)
     }
 
     private fun registerReceiver() {
