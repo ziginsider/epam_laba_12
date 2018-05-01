@@ -16,7 +16,7 @@ started service, bound service, jobsheduler - download file demo
 <img alt="work" src="/img/notification.png" />
 <br>
 
-## Result: the file (image) downloaded!
+## Result: the file (image) is downloaded!
 
 <img alt="work" src="/img/post_work.png" />
 <br>
