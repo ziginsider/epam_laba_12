@@ -131,17 +131,18 @@ class MainActivity : AppCompatActivity() {
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private fun runJobScheduler() {
-        val serviceComponent = ComponentName(this, JobSchedulerService::class.java)
-        val id = System.currentTimeMillis().toInt()
-        val infoBuilder = JobInfo.Builder(id, serviceComponent)
-        infoBuilder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
-                .setPeriodic(TimeUnit.HOURS.toMillis(2))
-
-        val info = infoBuilder.build()
-
-        val scheduler
-                = this.getSystemService(android.content.Context.JOB_SCHEDULER_SERVICE) as JobScheduler
-        scheduler.schedule(info)
+//        val serviceComponent = ComponentName(this, JobSchedulerService::class.java)
+//        val id = System.currentTimeMillis().toInt()
+//        val infoBuilder = JobInfo.Builder(id, serviceComponent)
+//        infoBuilder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
+//                .setPeriodic(TimeUnit.SECONDS.toMillis(30))
+//
+//        val info = infoBuilder.build()
+//
+//        val scheduler
+//                = this.getSystemService(android.content.Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+//        scheduler.schedule(info)
+        JobSchedulerService.schedule(this, TimeUnit.SECONDS.toMillis(15))
     }
 
     private fun registerReceiver() {
