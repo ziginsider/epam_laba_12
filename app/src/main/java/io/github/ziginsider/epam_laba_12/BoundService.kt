@@ -17,7 +17,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 
-class BoundService: Service() {
+class BoundService : Service() {
     interface ServiceFileLoadingListener {
         fun onFileLoadingProgress(download: Download, pathFile: File)
     }
@@ -38,8 +38,8 @@ class BoundService: Service() {
         return super.onUnbind(intent)
     }
 
-    inner class MyBinder: Binder() {
-        fun getService() : BoundService {
+    inner class MyBinder : Binder() {
+        fun getService(): BoundService {
             return this@BoundService
         }
     }
@@ -48,9 +48,7 @@ class BoundService: Service() {
      *
      *
      */
-    fun doFileDownloading(urlBase: String,
-                          urlFile: String,
-                          nameDownloadedFile: String,
+    fun doFileDownloading(urlBase: String, urlFile: String, nameDownloadedFile: String,
                           listener: ServiceFileLoadingListener) {
         Thread(Runnable {
             this.listener = listener

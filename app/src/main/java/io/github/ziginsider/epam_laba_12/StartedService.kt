@@ -23,9 +23,7 @@ class StartedService : Service() {
     private var totalMBFileSize: Int = 0
     private lateinit var filePath: File
 
-    override fun onBind(intent: Intent?): IBinder? {
-        return null
-    }
+    override fun onBind(intent: Intent?) = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         intent?.let {
@@ -39,7 +37,8 @@ class StartedService : Service() {
                           urlFile: String,
                           nameDownloadedFile: String) {
         Thread(Runnable {
-            notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
+            notificationManager = getSystemService(Context.NOTIFICATION_SERVICE)
+                    as NotificationManager?
             notificationBuilder = NotificationCompat.Builder(this, "ch1")
                     .setSmallIcon(R.drawable.ic_file_download)
                     .setContentTitle("Download")

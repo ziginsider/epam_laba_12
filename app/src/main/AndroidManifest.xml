@@ -24,12 +24,13 @@
 
         <service
             android:name=".BoundService"
-            android:enabled="true"
             android:exported="false" />
         <service
             android:name=".StartedService"
-            android:enabled="true"
             android:exported="false" />
+        <service
+            android:name=".JobSchedulerService"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
     </application>
 
 </manifest>

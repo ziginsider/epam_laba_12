@@ -40,18 +40,11 @@ class MainActivity : AppCompatActivity() {
 
         showBottomNavigationMenu()
 
-        downloadButton.setOnClickListener {
-            if (!checkPermission()) {
-                this.toast("You should grant permission")
-                requestPermission()
-            } else {
-                when (downloadingWay) {
-                    CHOOSE_STARTED_SERVICE -> runStartedService()
-                    CHOOSE_BOUND_SERVICE -> runBoundService()
-                    CHOOSE_JOB_SCHEDULER -> runJobScheduler()
-                }
-            }
-        }
+        initDownloadButton()
+
+        registerReceiver()
+
+        textView.text = getString(R.string.download_way_started_service)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>,
@@ -66,6 +59,50 @@ class MainActivity : AppCompatActivity() {
                     toast("Permission denied")
                 }
             }
+        }
+    }
+
+    private fun checkPermission() = ContextCompat.checkSelfPermission(this,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+
+    private fun requestPermission() {
+        ActivityCompat.requestPermissions(this,
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                REQUEST_PERMISSION_EXTERNAL_STORAGE)
+    }
+
+    private fun initDownloadButton() {
+        downloadButton.setOnClickListener {
+            if (!checkPermission()) {
+                this.toast("You should grant permission")
+                requestPermission()
+            } else {
+                when (downloadingWay) {
+                    CHOOSE_STARTED_SERVICE -> runStartedService()
+                    CHOOSE_BOUND_SERVICE -> runBoundService()
+                    CHOOSE_JOB_SCHEDULER -> runJobScheduler()
+                }
+            }
+        }
+    }
+
+    private fun showBottomNavigationMenu() {
+        bottomNavigation.setOnNavigationItemSelectedListener { item: MenuItem ->
+            when (item.itemId) {
+                R.id.chooseStartedService -> {
+                    downloadingWay = CHOOSE_STARTED_SERVICE
+                    textView.text = getString(R.string.download_way_started_service)
+                }
+                R.id.chooseBoundService -> {
+                    downloadingWay = CHOOSE_BOUND_SERVICE
+                    textView.text = getString(R.string.download_way_bound_service)
+                }
+                R.id.chooseJobScheduler -> {
+                    downloadingWay = CHOOSE_JOB_SCHEDULER
+                    textView.text = getString(R.string.download_way_job_scheduler)
+                }
+            }
+            true
         }
     }
 
@@ -119,20 +156,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showBottomNavigationMenu() {
-        bottomNavigation.setOnNavigationItemSelectedListener { item: MenuItem ->
-            when (item.itemId) {
-                R.id.chooseStartedService -> {
-                    downloadingWay = CHOOSE_STARTED_SERVICE
-                    registerReceiver()
-                }
-                R.id.chooseBoundService -> downloadingWay = CHOOSE_BOUND_SERVICE
-                R.id.chooseJobScheduler -> downloadingWay = CHOOSE_JOB_SCHEDULER
-            }
-            true
-        }
-    }
-
     private val myConnection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName?, service: IBinder?) {
             val binder = service as BoundService.MyBinder
@@ -144,15 +167,6 @@ class MainActivity : AppCompatActivity() {
         override fun onServiceDisconnected(p0: ComponentName?) {
             boundService = null
         }
-    }
-
-    private fun checkPermission() = ContextCompat.checkSelfPermission(this,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-
-    private fun requestPermission() {
-        ActivityCompat.requestPermissions(this,
-                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                REQUEST_PERMISSION_EXTERNAL_STORAGE)
     }
 
     private class BoundServiceListener(activity: MainActivity)
