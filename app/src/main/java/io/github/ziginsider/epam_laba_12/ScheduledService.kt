@@ -83,20 +83,18 @@ class ScheduledService(name: String? = "Scheduled Service") : IntentService(name
 
     @Throws(IOException::class)
     private fun downloadFile(body: ResponseBody, newFileName: String) {
-        val data = ByteArray(1024 * 4)
-        val fileSize = body.contentLength()
         filePath = if (Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED) {
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
         } else {
             applicationContext.filesDir
         }
-
+        val data = ByteArray(1024 * 4)
+        val fileSize = body.contentLength()
         val outputFile = File(filePath, newFileName)
         val startTime = System.currentTimeMillis()
         var count: Int
         var currentBytesFileSize = 0L
         var timeCount = 1
-
         var output: FileOutputStream? = null
         var bis: BufferedInputStream? = null
         try {
@@ -106,7 +104,8 @@ class ScheduledService(name: String? = "Scheduled Service") : IntentService(name
             while (count != -1) {
                 currentBytesFileSize += count
                 totalMBFileSize = (fileSize / Math.pow(1024.0, 2.0)).toInt()
-                val currentMBFileSize = Math.round(currentBytesFileSize / Math.pow(1024.0, 2.0))
+                val currentMBFileSize
+                        = Math.round(currentBytesFileSize / Math.pow(1024.0, 2.0))
                 val progress = (currentBytesFileSize * 100 / fileSize).toInt()
                 val currentTime = System.currentTimeMillis() - startTime
                 //renew 10 times per second

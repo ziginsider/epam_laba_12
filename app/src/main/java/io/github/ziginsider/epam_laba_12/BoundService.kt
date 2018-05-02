@@ -89,20 +89,18 @@ class BoundService : Service() {
 
     @Throws(IOException::class)
     private fun downloadFile(body: ResponseBody, newFileName: String) {
-        val data = ByteArray(1024 * 4)
-        val fileSize = body.contentLength()
         filePath = if (Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED) {
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
         } else {
             applicationContext.filesDir
         }
-
+        val data = ByteArray(1024 * 4)
+        val fileSize = body.contentLength()
         val outputFile = File(filePath, newFileName)
         val startTime = System.currentTimeMillis()
         var count: Int
         var currentBytesFileSize = 0L
         var timeCount = 1
-
         var output: FileOutputStream? = null
         var bis: BufferedInputStream? = null
         try {
