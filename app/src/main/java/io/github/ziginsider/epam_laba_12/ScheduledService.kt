@@ -85,35 +85,45 @@ class ScheduledService(name: String? = "Scheduled Service") : IntentService(name
     private fun downloadFile(body: ResponseBody, newFileName: String) {
         val data = ByteArray(1024 * 4)
         val fileSize = body.contentLength()
-        val bis = BufferedInputStream(body.byteStream(), 1024 * 8)
-        filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        filePath = if (Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED) {
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        } else {
+            applicationContext.filesDir
+        }
+
         val outputFile = File(filePath, newFileName)
-        val output = FileOutputStream(outputFile)
         val startTime = System.currentTimeMillis()
         var count: Int
         var currentBytesFileSize = 0L
         var timeCount = 1
 
-        count = bis.read(data)
-        while (count != -1) {
-            currentBytesFileSize += count
-            totalMBFileSize = (fileSize / Math.pow(1024.0, 2.0)).toInt()
-            val currentMBFileSize = Math.round(currentBytesFileSize / Math.pow(1024.0, 2.0))
-            val progress = (currentBytesFileSize * 100 / fileSize).toInt()
-            val currentTime = System.currentTimeMillis() - startTime
-            //renew 10 times per second
-            if (currentTime > 100 * timeCount) {
-                val download = Download(progress, currentMBFileSize.toInt(), totalMBFileSize)
-                sendNotification(download)
-                timeCount++
-            }
-            output.write(data, 0, count)
+        var output: FileOutputStream? = null
+        var bis: BufferedInputStream? = null
+        try {
+            output = FileOutputStream(outputFile)
+            bis = BufferedInputStream(body.byteStream(), 1024 * 8)
             count = bis.read(data)
+            while (count != -1) {
+                currentBytesFileSize += count
+                totalMBFileSize = (fileSize / Math.pow(1024.0, 2.0)).toInt()
+                val currentMBFileSize = Math.round(currentBytesFileSize / Math.pow(1024.0, 2.0))
+                val progress = (currentBytesFileSize * 100 / fileSize).toInt()
+                val currentTime = System.currentTimeMillis() - startTime
+                //renew 10 times per second
+                if (currentTime > 100 * timeCount) {
+                    val download = Download(progress, currentMBFileSize.toInt(), totalMBFileSize)
+                    sendNotification(download)
+                    timeCount++
+                }
+                output.write(data, 0, count)
+                count = bis.read(data)
+            }
+            onDownloadComplete()
+        } finally {
+            output?.flush()
+            output?.close()
+            bis?.close()
         }
-        onDownloadComplete()
-        output.flush()
-        output.close()
-        bis.close()
     }
 
     private fun sendNotification(download: Download) {
