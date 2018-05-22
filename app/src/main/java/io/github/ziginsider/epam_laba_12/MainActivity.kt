@@ -133,7 +133,7 @@ class MainActivity : AppCompatActivity() {
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private fun runJobScheduler() {
-        JobSchedulerService.schedule(this, TimeUnit.SECONDS.toMillis(20))
+        JobSchedulerService.schedule(this, TimeUnit.HOURS.toMillis(2))
     }
 
     private fun registerReceiver() {
