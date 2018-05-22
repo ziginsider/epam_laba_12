@@ -24,10 +24,15 @@ import io.github.ziginsider.epam_laba_12.download.Download
  * @author Alex Kisel
  */
 class StartedService : Service() {
+
     private var notificationBuilder: NotificationCompat.Builder? = null
     private var notificationManager: NotificationManager? = null
     private var totalMBFileSize: Int = 0
-    private lateinit var filePath: File
+    private var filePath = if (Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED) {
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+    } else {
+        applicationContext.filesDir
+    }
 
     override fun onBind(intent: Intent?) = null
 
@@ -151,5 +156,12 @@ class StartedService : Service() {
             it.setContentText("File Downloaded")
             notificationManager?.notify(0, it.build())
         }
+    }
+
+    companion object {
+
+        const val ACTION_MESSAGE_PROGRESS = "message_started_service_progress"
+        const val KEY_MESSAGE_PROGRESS = "download"
+        const val KEY_MESSAGE_FILE = "file_name"
     }
 }
