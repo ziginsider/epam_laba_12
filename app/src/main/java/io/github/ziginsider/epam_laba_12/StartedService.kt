@@ -143,10 +143,11 @@ class StartedService : Service() {
     }
 
     private fun sendIntent(download: Download) {
-        val intent = Intent(ACTION_MESSAGE_PROGRESS)
-        intent.putExtra(KEY_MESSAGE_PROGRESS, download)
-        intent.putExtra(KEY_MESSAGE_FILE, filePath.path)
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+        LocalBroadcastManager.getInstance(this)
+                .sendBroadcast(Intent(ACTION_MESSAGE_PROGRESS).apply {
+            putExtra(KEY_MESSAGE_PROGRESS, download)
+            putExtra(KEY_MESSAGE_FILE, filePath.path)
+        })
     }
 
     private fun onDownloadComplete() {

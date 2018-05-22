@@ -119,10 +119,11 @@ class ScheduledService(name: String? = "Scheduled Service") : IntentService(name
     }
 
     private fun sendIntent(download: Download) {
-        val intent = Intent(ACTION_MESSAGE_PROGRESS)
-        intent.putExtra(KEY_MESSAGE_PROGRESS, download)
-        intent.putExtra(KEY_MESSAGE_FILE, filePath.path)
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+        LocalBroadcastManager.getInstance(this)
+                .sendBroadcast(Intent(ACTION_MESSAGE_PROGRESS).apply {
+            putExtra(KEY_MESSAGE_PROGRESS, download)
+            putExtra(KEY_MESSAGE_FILE, filePath.path)
+        })
     }
 
     private fun onDownloadComplete() {
@@ -158,14 +159,12 @@ class ScheduledService(name: String? = "Scheduled Service") : IntentService(name
          */
         fun startScheduledJob(context: Context, urlBase: String, urlFile: String,
                               nameDownloadedFile: String) {
-            val intent = Intent(context, ScheduledService::class.java)
-            with(intent) {
+            context.startService(Intent(context, ScheduledService::class.java).apply {
                 action = ACTION
                 putExtra(KEY_BASE_URL, urlBase)
                 putExtra(KEY_GET_REQUEST, urlFile)
                 putExtra(KEY_FILE_NAME, nameDownloadedFile)
-                context.startService(this)
-            }
+            })
         }
     }
 }

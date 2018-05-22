@@ -117,13 +117,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun runStartedService() {
-        val intent = Intent(this, StartedService::class.java)
-        with(intent) {
+        startService(Intent(this, StartedService::class.java).apply {
             putExtra(KEY_BASE_URL, RETROFIT_BASE_URL)
             putExtra(KEY_GET_REQUEST, RETROFIT_GET_REQUEST)
             putExtra(KEY_FILE_NAME, DOWNLOADED_FILE_NAME)
-            startService(this)
-        }
+        })
     }
 
     private fun runBoundService() {
