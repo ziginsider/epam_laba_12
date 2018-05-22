@@ -141,6 +141,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val broadcastReceiver = object : BroadcastReceiver() {
+
         override fun onReceive(context: Context, intent: Intent) {
             if (intent.action == ACTION_MESSAGE_PROGRESS) {
                 val (progress, currentFileSize, totalFileSize)
@@ -161,6 +162,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val myConnection = object : ServiceConnection {
+
         override fun onServiceConnected(className: ComponentName?, service: IBinder?) {
             val binder = service as BoundService.MyBinder
             boundService = binder.getService()
