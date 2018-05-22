@@ -14,6 +14,7 @@ import retrofit2.http.Url
  * @author Alex Kisel
  */
 interface RetrofitDownload {
+
     @GET
     @Streaming
     fun downloadFile(@Url url: String): Call<ResponseBody>
