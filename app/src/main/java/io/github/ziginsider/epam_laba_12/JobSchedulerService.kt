@@ -31,9 +31,10 @@ class JobSchedulerService : JobService() {
         }
         set(value) {
             val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-            val editor = prefs.edit()
-            editor.putInt(JOB_COUNTER, value)
-            editor.apply()
+            with(prefs.edit()) {
+                putInt(JOB_COUNTER, value)
+                apply()
+            }
         }
 
     override fun onStartJob(params: JobParameters?): Boolean {
@@ -79,6 +80,11 @@ class JobSchedulerService : JobService() {
             val jobScheduler
                     = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
             jobScheduler.cancel(JOB_ID)
+            val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+            with(prefs.edit()) {
+                putInt(JOB_COUNTER, 0)
+                apply()
+            }
         }
     }
 }
