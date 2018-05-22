@@ -15,8 +15,6 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 
-const val ACTION = "sheduled_action"
-
 /**
  * Implementation IntentService. Runs file downloading with showing notification and
  * progress of download
@@ -25,28 +23,14 @@ const val ACTION = "sheduled_action"
  * @author Alex Kisel
  */
 class ScheduledService(name: String? = "Scheduled Service") : IntentService(name) {
+
     private var notificationBuilder: NotificationCompat.Builder? = null
     private var notificationManager: NotificationManager? = null
     private var totalMBFileSize: Int = 0
-    private lateinit var filePath: File
-
-    companion object {
-        /**
-         * Runs file downloading with showing notification and progress of download
-         *
-         * @param urlBase URL address of file downloading without file's name
-         * @param urlFile Get request with file's name
-         * @param nameDownloadedFile new file's name for external storage
-         */
-        fun startScheduledJob(context: Context, urlBase: String, urlFile: String,
-                              nameDownloadedFile: String) {
-            val intent = Intent(context, ScheduledService::class.java)
-            intent.action = ACTION
-            intent.putExtra(KEY_BASE_URL, urlBase)
-            intent.putExtra(KEY_GET_REQUEST, urlFile)
-            intent.putExtra(KEY_FILE_NAME, nameDownloadedFile)
-            context.startService(intent)
-        }
+    private var filePath = if (Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED) {
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+    } else {
+        applicationContext.filesDir
     }
 
     override fun onHandleIntent(intent: Intent?) {
@@ -83,11 +67,6 @@ class ScheduledService(name: String? = "Scheduled Service") : IntentService(name
 
     @Throws(IOException::class)
     private fun downloadFile(body: ResponseBody, newFileName: String) {
-        filePath = if (Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED) {
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-        } else {
-            applicationContext.filesDir
-        }
         val data = ByteArray(1024 * 4)
         val fileSize = body.contentLength()
         val outputFile = File(filePath, newFileName)
@@ -104,8 +83,7 @@ class ScheduledService(name: String? = "Scheduled Service") : IntentService(name
             while (count != -1) {
                 currentBytesFileSize += count
                 totalMBFileSize = (fileSize / Math.pow(1024.0, 2.0)).toInt()
-                val currentMBFileSize
-                        = Math.round(currentBytesFileSize / Math.pow(1024.0, 2.0))
+                val currentMBFileSize = Math.round(currentBytesFileSize / Math.pow(1024.0, 2.0))
                 val progress = (currentBytesFileSize * 100 / fileSize).toInt()
                 val currentTime = System.currentTimeMillis() - startTime
                 //renew 10 times per second
@@ -159,5 +137,32 @@ class ScheduledService(name: String? = "Scheduled Service") : IntentService(name
     override fun onDestroy() {
         super.onDestroy()
         notificationManager?.cancel(0)
+    }
+
+    companion object {
+
+        const val ACTION = "sheduled_action"
+        const val ACTION_MESSAGE_PROGRESS = "message_started_service_progress"
+        const val KEY_MESSAGE_PROGRESS = "download"
+        const val KEY_MESSAGE_FILE = "file_name"
+
+        /**
+         * Runs file downloading with showing notification and progress of download
+         *
+         * @param urlBase URL address of file downloading without file's name
+         * @param urlFile Get request with file's name
+         * @param nameDownloadedFile new file's name for external storage
+         */
+        fun startScheduledJob(context: Context, urlBase: String, urlFile: String,
+                              nameDownloadedFile: String) {
+            val intent = Intent(context, ScheduledService::class.java)
+            with(intent) {
+                action = ACTION
+                putExtra(KEY_BASE_URL, urlBase)
+                putExtra(KEY_GET_REQUEST, urlFile)
+                putExtra(KEY_FILE_NAME, nameDownloadedFile)
+                context.startService(this)
+            }
+        }
     }
 }
