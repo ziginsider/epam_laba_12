@@ -25,7 +25,9 @@ import java.io.IOException
  * @author Alex Kisel
  */
 class BoundService : Service() {
+
     interface ServiceFileLoadingListener {
+
         fun onFileLoadingProgress(download: Download, pathFile: File)
     }
 
@@ -34,7 +36,11 @@ class BoundService : Service() {
     private var notificationBuilder: NotificationCompat.Builder? = null
     private var notificationManager: NotificationManager? = null
     private var totalMBFileSize: Int = 0
-    private lateinit var filePath: File
+    private var filePath = if (Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED) {
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+    } else {
+        applicationContext.filesDir
+    }
 
     override fun onBind(intent: Intent?): IBinder {
         return myBinder
@@ -46,6 +52,7 @@ class BoundService : Service() {
     }
 
     inner class MyBinder : Binder() {
+
         fun getService(): BoundService {
             return this@BoundService
         }
@@ -89,11 +96,6 @@ class BoundService : Service() {
 
     @Throws(IOException::class)
     private fun downloadFile(body: ResponseBody, newFileName: String) {
-        filePath = if (Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED) {
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-        } else {
-            applicationContext.filesDir
-        }
         val data = ByteArray(1024 * 4)
         val fileSize = body.contentLength()
         val outputFile = File(filePath, newFileName)
