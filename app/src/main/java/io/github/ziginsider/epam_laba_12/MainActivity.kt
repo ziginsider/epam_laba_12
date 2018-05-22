@@ -23,14 +23,6 @@ import android.content.ComponentName
 import android.os.Build
 import java.util.concurrent.TimeUnit
 
-const val REQUEST_PERMISSION_EXTERNAL_STORAGE = 1
-const val CHOOSE_STARTED_SERVICE = 0
-const val CHOOSE_BOUND_SERVICE = 1
-const val CHOOSE_JOB_SCHEDULER = 2
-const val ACTION_MESSAGE_PROGRESS = "message_started_service_progress"
-const val KEY_MESSAGE_PROGRESS = "download"
-const val KEY_MESSAGE_FILE = "file_name"
-
 /**
  * Activity that displays bottom navigation view, that lets to choose different way download
  * file (image) into external storage.
@@ -46,6 +38,7 @@ const val KEY_MESSAGE_FILE = "file_name"
  * @author Alex Kisel
  */
 class MainActivity : AppCompatActivity() {
+
     private var boundService: BoundService? = null
     private var isBound = false
     private var downloadingWay = CHOOSE_STARTED_SERVICE
@@ -211,5 +204,16 @@ class MainActivity : AppCompatActivity() {
         } catch (e: IllegalArgumentException) {
             e.printStackTrace()
         }
+    }
+
+    companion object {
+
+        const val REQUEST_PERMISSION_EXTERNAL_STORAGE = 1
+        const val CHOOSE_STARTED_SERVICE = 0
+        const val CHOOSE_BOUND_SERVICE = 1
+        const val CHOOSE_JOB_SCHEDULER = 2
+        const val ACTION_MESSAGE_PROGRESS = "message_started_service_progress"
+        const val KEY_MESSAGE_PROGRESS = "download"
+        const val KEY_MESSAGE_FILE = "file_name"
     }
 }
