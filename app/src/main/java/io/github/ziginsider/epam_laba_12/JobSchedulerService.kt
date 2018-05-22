@@ -14,10 +14,6 @@ import android.content.Context
 import android.util.Log
 import android.preference.PreferenceManager
 
-const val JOB_START_COUNT_TIMES = 5
-const val JOB_ID = 13
-const val JOB_COUNTER = "jobCounter"
-
 /**
  * Implementation Job Scheduler. Runs file downloading every 2 hours with showing notification and
  * progress of download. Repeats this downloading five times.
@@ -48,7 +44,6 @@ class JobSchedulerService : JobService() {
             Log.d("TAG", "[JOB SCHEDULER onStartJob() run $counter times]")
             ScheduledService.startScheduledJob(applicationContext, RETROFIT_BASE_URL,
                     RETROFIT_GET_REQUEST, DOWNLOADED_FILE_NAME)
-
         }
         return true
     }
@@ -56,7 +51,10 @@ class JobSchedulerService : JobService() {
     override fun onStopJob(params: JobParameters?) = false
 
     companion object {
-        //private var counter = 0
+
+        const val JOB_START_COUNT_TIMES = 5
+        const val JOB_ID = 13
+        const val JOB_COUNTER = "jobCounter"
 
         /**
          * Runs Job Scheduler with a periodic interval
@@ -77,11 +75,10 @@ class JobSchedulerService : JobService() {
         /**
          * Cancel current Job
          */
-        fun cancel(context: Context?) {
-            context?.let {
-                val jobScheduler = it.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
-                jobScheduler.cancel(JOB_ID)
-            }
+        fun cancel(context: Context) {
+            val jobScheduler
+                    = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+            jobScheduler.cancel(JOB_ID)
         }
     }
 }
