@@ -8,6 +8,9 @@ import android.os.Environment
 import android.support.v4.app.NotificationCompat
 import android.support.v4.content.LocalBroadcastManager
 import io.github.ziginsider.epam_laba_12.download.*
+import io.github.ziginsider.epam_laba_12.download.Contract.KEY_BASE_URL
+import io.github.ziginsider.epam_laba_12.download.Contract.KEY_FILE_NAME
+import io.github.ziginsider.epam_laba_12.download.Contract.KEY_GET_REQUEST
 import okhttp3.ResponseBody
 import retrofit2.Retrofit
 import java.io.BufferedInputStream

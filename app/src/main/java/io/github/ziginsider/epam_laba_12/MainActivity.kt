@@ -15,12 +15,17 @@ import java.io.File
 import java.lang.ref.WeakReference
 import android.graphics.BitmapFactory
 import android.view.MenuItem
-import io.github.ziginsider.epam_laba_12.download.*
 import io.github.ziginsider.epam_laba_12.utils.toast
 import android.support.v4.content.LocalBroadcastManager
 import io.github.ziginsider.epam_laba_12.download.Download
 import android.content.ComponentName
 import android.os.Build
+import io.github.ziginsider.epam_laba_12.download.Contract.DOWNLOADED_FILE_NAME
+import io.github.ziginsider.epam_laba_12.download.Contract.KEY_BASE_URL
+import io.github.ziginsider.epam_laba_12.download.Contract.KEY_FILE_NAME
+import io.github.ziginsider.epam_laba_12.download.Contract.KEY_GET_REQUEST
+import io.github.ziginsider.epam_laba_12.download.Contract.RETROFIT_BASE_URL
+import io.github.ziginsider.epam_laba_12.download.Contract.RETROFIT_GET_REQUEST
 import java.util.concurrent.TimeUnit
 
 /**

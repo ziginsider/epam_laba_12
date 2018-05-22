@@ -5,14 +5,14 @@ import android.app.job.JobInfo
 import android.app.job.JobParameters
 import android.app.job.JobService
 import android.os.Build
-import io.github.ziginsider.epam_laba_12.download.DOWNLOADED_FILE_NAME
-import io.github.ziginsider.epam_laba_12.download.RETROFIT_BASE_URL
-import io.github.ziginsider.epam_laba_12.download.RETROFIT_GET_REQUEST
 import android.app.job.JobScheduler
 import android.content.ComponentName
 import android.content.Context
 import android.util.Log
 import android.preference.PreferenceManager
+import io.github.ziginsider.epam_laba_12.download.Contract.DOWNLOADED_FILE_NAME
+import io.github.ziginsider.epam_laba_12.download.Contract.RETROFIT_BASE_URL
+import io.github.ziginsider.epam_laba_12.download.Contract.RETROFIT_GET_REQUEST
 
 /**
  * Implementation Job Scheduler. Runs file downloading every 2 hours with showing notification and

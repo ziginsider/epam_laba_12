@@ -14,6 +14,9 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import android.support.v4.content.LocalBroadcastManager
+import io.github.ziginsider.epam_laba_12.download.Contract.KEY_BASE_URL
+import io.github.ziginsider.epam_laba_12.download.Contract.KEY_FILE_NAME
+import io.github.ziginsider.epam_laba_12.download.Contract.KEY_GET_REQUEST
 import io.github.ziginsider.epam_laba_12.download.Download
 
 /**
