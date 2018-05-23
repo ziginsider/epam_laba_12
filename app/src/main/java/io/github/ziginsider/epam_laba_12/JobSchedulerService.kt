@@ -25,17 +25,14 @@ import io.github.ziginsider.epam_laba_12.download.Contract.RETROFIT_GET_REQUEST
 class JobSchedulerService : JobService() {
 
     private var counter: Int
-        get() {
-            val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-            return prefs.getInt(JOB_COUNTER, 0)
-        }
-        set(value) {
-            val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-            with(prefs.edit()) {
-                putInt(JOB_COUNTER, value)
-                apply()
-            }
-        }
+        get() = PreferenceManager.getDefaultSharedPreferences(this)
+                .getInt(JOB_COUNTER, 0)
+
+        set(value) = PreferenceManager.getDefaultSharedPreferences(this)
+                .edit()
+                .putInt(JOB_COUNTER, value)
+                .apply()
+
 
     override fun onStartJob(params: JobParameters?): Boolean {
         if (++counter > JOB_START_COUNT_TIMES) {
