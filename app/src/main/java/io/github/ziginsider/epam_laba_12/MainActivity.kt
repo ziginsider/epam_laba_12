@@ -180,6 +180,7 @@ class MainActivity : AppCompatActivity() {
 
     private class BoundServiceListener(activity: MainActivity)
         : BoundService.ServiceFileLoadingListener {
+
         private val weakActivity: WeakReference<MainActivity> = WeakReference(activity)
 
         override fun onFileLoadingProgress(download: Download, pathFile: File) {
