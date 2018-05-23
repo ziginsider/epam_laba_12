@@ -40,6 +40,7 @@ class JobSchedulerService : JobService() {
     override fun onStartJob(params: JobParameters?): Boolean {
         if (++counter > JOB_START_COUNT_TIMES) {
             Log.d("TAG", "[JOB SCHEDULER CANCEL]")
+            counter = 0
             JobSchedulerService.cancel(this)
         } else {
             Log.d("TAG", "[JOB SCHEDULER onStartJob() run $counter times]")
@@ -80,11 +81,6 @@ class JobSchedulerService : JobService() {
             val jobScheduler
                     = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
             jobScheduler.cancel(JOB_ID)
-            val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-            with(prefs.edit()) {
-                putInt(JOB_COUNTER, 0)
-                apply()
-            }
         }
     }
 }
